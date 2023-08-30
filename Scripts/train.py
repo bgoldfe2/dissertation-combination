@@ -23,31 +23,54 @@ import utils
 import matplotlib.pyplot as plt
 from Model_Config import Model_Config, traits
 import os
+from copy import deepcopy
 
-os.chdir('/home/bruce/dev/dissertation-one-v-rest/Scripts')
+#os.chdir('/home/bruce/dev/dissertation-one-v-rest/Scripts')
 
+def get_trt_from_pair(tp):
+    return tp.split('_')[0], tp.split('_')[1]
+
+def get_combo_data(t1, t2, df_in):
+    #print("df_in is ", type(df_in))
+    #print(df_in)
+    df1 = df_in.loc[df_in['label']==t1,:].copy()
+    df2 = df_in.loc[df_in['label']==t2,:].copy()
+
+    #print("df1 after loc filter ", df1)
+
+    df1['target'] = 0
+    df2['target'] = 1
+
+    #print("df2 is ", type(df2))
+    #print(df2)
+
+    df_rtn = pd.concat([df1, df2])
+
+    return df_rtn
 
 def run(args: Model_Config):
     print("This is the model name ", args.pretrained_model)
     print("type that args is in run method ", type(args))
     print("This is the args.dataset_path in train run method", args.dataset_path)
     
-    # Read in the new per trait data sets
-    # All traits will be compared to the same class '0' Notcb - Not Cyberbullying
-    # All dataframes will have two output classes
-
-    # LOOP needed, running through with one trait first hardcoded
-    #print(os.getcwd())
-    # Get the absolute path to the file
-    #file_path = os.path.abspath("../Dataset/Binary/train/train_Age.csv")
-    #os.chdir('/home/bruce/dev/dissertation-one-v-rest/Scripts')
-    #print(pd.read_csv(file_path).head())
+    # Create the Combination of Six Traits pairs set of models 15 models (C6,2)
+    comb_trt = ['Age_Ethnicity', 'Age_Gender', 'Age_Notcb', 'Age_Others', 'Age_Religion',
+     'Ethnicity_Gender', 'Ethnicity_Notcb', 'Ethnicity_Others', 'Ethnicity_Religion', 'Gender_Notcb',
+     'Gender_Others', 'Gender_Religion', 'Notcb_Others', 'Notcb_Religion', 'Others_Religion']
     
 
-    for trt in range(0,6):
-        train_df = pd.read_csv(''.join([args.dataset_path, 'train/train_', traits.get(str(trt)), '_one_v_rest.csv'   ])).dropna()
-        valid_df = pd.read_csv(''.join([args.dataset_path, 'val/val_', traits.get(str(trt)), '_one_v_rest.csv'   ])).dropna()
-        test_df = pd.read_csv(''.join([args.dataset_path, 'test/test_', traits.get(str(trt)), '_one_v_rest.csv'   ])).dropna()
+    for trt_pair in comb_trt:
+        train_df_full = pd.read_csv(''.join([args.dataset_path, 'train.csv'   ])).dropna()
+        valid_df_full = pd.read_csv(''.join([args.dataset_path, 'valid.csv'   ])).dropna()
+        test_df_full = pd.read_csv(''.join([args.dataset_path, 'test.csv'   ])).dropna()
+
+        t1, t2 = get_trt_from_pair(trt_pair)
+        
+        print(t1, ' --- ', t2)
+        train_df = get_combo_data(t1, t2, train_df_full)
+        valid_df = get_combo_data(t1, t2, valid_df_full)
+        test_df = get_combo_data(t1, t2, test_df_full)
+        
 
         # NOTE Text encoding occurs at model instantiation
         # Create the dataset classes for train, valid, and test  
@@ -134,19 +157,19 @@ def run(args: Model_Config):
 
             # SAVE MODEL if best so far going through epochs
             if val_acc>best_acc:
-                print(f'Epoch {epoch + 1} val_acc {val_acc} best_acc {best_acc} trait {traits.get(str(trt))}')
-                torch.save(model.state_dict(), f"{args.model_path}{traits.get(str(trt))}_Best_Val_Acc.bin")
+                print(f'Epoch {epoch + 1} val_acc {val_acc} best_acc {best_acc} trait {trt_pair}')
+                torch.save(model.state_dict(), f"{args.model_path}{trt_pair}_Best_Val_Acc.bin")
                 # BHG needed to set best_acc to val_acc this was missing in prior implementation
                 best_acc=val_acc
 
             
         print(f'\n---History---\n{history}')
         print("##################################### Testing ############################################")
-        pred_test, acc = test_evaluate(trt,test_df, test_data_loader, model, device, args)
-        pred_test.to_csv(f'{args.output_path}{traits.get(str(trt))}---test_acc---{acc}.csv', index = False)
+        pred_test, acc = test_evaluate(trt_pair,test_df, test_data_loader, model, device, args)
+        #pred_test.to_csv(f'{args.output_path}{trt_pair}---test_acc---{acc}.csv', index = False)
 
         # Create and save the Accuracy and Loss plot during epoch training per trait
-        plt_acc_loss = save_acc_loss_curves(args, trt, history)
+        plt_acc_loss = save_acc_loss_curves(args, trt_pair, history)
         
         del model, train_data_loader, valid_data_loader, train_dataset, valid_dataset
         torch.cuda.empty_cache()

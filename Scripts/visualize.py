@@ -10,26 +10,32 @@ from Model_Config import traits
 import numpy as np
 import seaborn as sns
 
+
+# Due to circular import just copying the simple function from train.py
+def get_trt_from_pair(tp):
+    return tp.split('_')[0], tp.split('_')[1]
+
 # For Debug
 #def save_acc_loss_curves(trt, history):
-def save_acc_loss_curves(args, trt, history):
+def save_acc_loss_curves(args, trt_pair, history):
 
     plt.figure(1)
-    plt.plot(range(1,5),history['train_acc'], label='train accuracy')
-    plt.plot(range(1,5),history['val_acc'], label='validation accuracy')
+    upper_epoch_limit = args.epochs + 1
+    plt.plot(range(1, upper_epoch_limit),history['train_acc'], label='train accuracy')
+    plt.plot(range(1, upper_epoch_limit),history['val_acc'], label='validation accuracy')
     plt.title('Training and Validation Accuracy and Loss')
     plt.ylabel('Accuracy and Loss')
     plt.xlabel('Epoch')
     plt.xlim(1, 4)
-    plt.xticks(range(1, 5))
-    plt.plot(range(1,5),history['train_loss'], label='train loss')
-    plt.plot(range(1,5),history['val_loss'], label='validation loss')
+    plt.xticks(range(1, upper_epoch_limit))
+    plt.plot(range(1, upper_epoch_limit),history['train_loss'], label='train loss')
+    plt.plot(range(1,upper_epoch_limit),history['val_loss'], label='validation loss')
     plt.legend()
     #plt.ylim([0.0, 0.3])
     
     # For Debug
     #plt.savefig(f"{traits.get(str(trt))}---acc_loss---.pdf")
-    plt.savefig(f"{args.figure_path}{traits.get(str(trt))}---acc_loss---.pdf")
+    plt.savefig(f"{args.figure_path}{trt_pair}---acc_loss---.pdf")
 
     plt.clf()
     plt.close()
@@ -47,7 +53,7 @@ def save_acc_loss_curves(args, trt, history):
 #                   cmap='Blues',
 #                   title=traits.get(str(trt)))
 def make_confusion_matrix(args, 
-                          trt,
+                          trt_pair,
                           cf,
                           group_names=None,
                           categories='auto',
@@ -157,9 +163,10 @@ def make_confusion_matrix(args,
     
     if title:
         plt.title(title)
-    print("trait ", trt, "figure path", args.figure_path, " trait ", traits.get(str(trt)))
+    t1, t2 = get_trt_from_pair(trt_pair)
+    print("trait pair ", trt_pair, "figure path", args.figure_path, " trait pair ", trt_pair)
     #asdf
-    plt.savefig(''.join([args.figure_path, traits.get(str(trt)), '_confusion_matrix.pdf']), dpi=400)
+    plt.savefig(''.join([args.figure_path, trt_pair, '_confusion_matrix.pdf']), dpi=400)
     plt.clf()
     plt.close()
     

@@ -18,9 +18,13 @@ from Model_Config import Model_Config, traits
 
 from utils import oneHot, roc_curve, auc, generate_dataset_for_ensembling, load_models, set_device
 
-def test_evaluate(trt, test_df, test_data_loader, model, device, args: Model_Config, *ens_flag):
+# Due to circular import just copying the simple function from train.py
+def get_trt_from_pair(tp):
+    return tp.split('_')[0], tp.split('_')[1]
 
-    print("Trait is ", traits.get(str(trt)))
+def test_evaluate(trt_pair, test_df, test_data_loader, model, device, args: Model_Config, *ens_flag):
+
+    print("Trait pair is ", trt_pair)
         
     history2 = defaultdict(list)
 
@@ -54,11 +58,11 @@ def test_evaluate(trt, test_df, test_data_loader, model, device, args: Model_Con
     # BHG Aug 14 adjusted for Ensemble folder output and function flag
     print("ensemble path in args is ", args.ensemble_path)
     
-    out_file = ''.join([args.output_path, traits.get(str(trt)), '-test_metrics.csv'])
-    pred_test_file = ''.join([args.output_path, traits.get(str(trt)), '-test_metrics.csv'])
+    out_file = ''.join([args.output_path, trt_pair, '-test_metrics.csv'])
+    pred_test_file = ''.join([args.output_path, trt_pair, '-test_acc-',str(acc),'.csv'])
     if ens_flag:
-        pred_test_file = ''.join([args.ensemble_path, 'Output/ensemble-', traits.get(str(trt)), '-test_acc-',str(acc),'.csv'])
-        out_file = ''.join([args.ensemble_path, '/Output/ensemble-', traits.get(str(trt)), '-test_metrics.csv'])
+        pred_test_file = ''.join([args.ensemble_path, 'Output/ensemble-', trt_pair, '-test_acc-',str(acc),'.csv'])
+        out_file = ''.join([args.ensemble_path, '/Output/ensemble-', trt_pair, '-test_metrics.csv'])
 
 
     with open(out_file, 'w', newline='') as csvfile:
@@ -68,13 +72,13 @@ def test_evaluate(trt, test_df, test_data_loader, model, device, args: Model_Con
 
     # NEW Add in the probabilities in as softmax by exp the log_softmax from loss function
 
-    for i in y_proba:
-        print("type proba ", type(y_proba))
-        print("first proba ", y_proba[0])
-        print("first element in tuple ", y_proba[0][0])
-        print("normal not log ", math.exp(y_proba[0][0]))
-        print("normal not log other part ", math.exp(y_proba[0][1]))
-        print("adds up to ", math.exp(y_proba[0][0]) + math.exp(y_proba[0][1]))
+    #for i in y_proba:
+        #print("type proba ", type(y_proba))
+        #print("first proba ", y_proba[0])
+        #print("first element in tuple ", y_proba[0][0])
+        #print("normal not log ", math.exp(y_proba[0][0]))
+        #print("normal not log other part ", math.exp(y_proba[0][1]))
+        #print("adds up to ", math.exp(y_proba[0][0]) + math.exp(y_proba[0][1]))
         
     prob_trt = []
     prob_not_trt = []
@@ -82,7 +86,7 @@ def test_evaluate(trt, test_df, test_data_loader, model, device, args: Model_Con
         prob_trt.append(math.exp(y_proba[i][0]))
         prob_not_trt.append(math.exp(y_proba[i][1]))
 
-    print("prob of trt is ", prob_trt[0], "prob not trt ", prob_not_trt[0])
+    #print("prob of trt is ", prob_trt[0], "prob not trt ", prob_not_trt[0])
     
 
 
@@ -100,26 +104,26 @@ def test_evaluate(trt, test_df, test_data_loader, model, device, args: Model_Con
 
     labels = ['True Pos','False Pos','False Neg','True Neg']
     categories = ['1', '0']
-    make_confusion_matrix(args, trt, conf_mat, 
+    make_confusion_matrix(args, trt_pair, conf_mat, 
                       group_names=labels,
                       categories=categories, 
                       cmap='Blues',
-                      title=traits.get(str(trt)))
+                      title=trt_pair)
     
 
     # auc evaluation new for this version
     # ROC Curve
-    calc_roc_auc(trt, np.array(y_test), np.array(y_proba), args)
+    calc_roc_auc(trt_pair, np.array(y_test), np.array(y_proba), args)
 
     # Return the test results for saving in train.py
     # chainging the return to add in probabilities this may screw up other calls
     return pred_test, acc
 
-def calc_roc_auc(trt, all_labels, all_logits, args, name=None ):
+def calc_roc_auc(trt_pair, all_labels, all_logits, args, name=None ):
 
-    trait = traits.get(str(trt))
-    notcb = traits.get(str(3))
-    attributes = [trait, notcb ]
+    t1, t2 = get_trt_from_pair(trt_pair)
+    
+    attributes = [t1, t2 ]
     print("attributes in calc_roc_auc are ", attributes)
     
     
@@ -143,7 +147,7 @@ def calc_roc_auc(trt, all_labels, all_logits, args, name=None ):
     if (name!=None):
         plt.savefig(f"{args.figure_path}{name}---roc_auc_curve---.pdf")
     else:
-        plt.savefig(f"{args.figure_path}{trait}---roc_auc_curve---.pdf")
+        plt.savefig(f"{args.figure_path}{trt_pair}---roc_auc_curve---.pdf")
     plt.clf()
     # Compute micro-average ROC curve and ROC area
     fpr["micro"], tpr["micro"], _ = roc_curve(all_labels.ravel(), all_logits.ravel())

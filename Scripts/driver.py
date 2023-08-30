@@ -46,7 +46,7 @@ def get_parser():
     parser.add_argument("--train_batch_size", default=32, type=int,  help='Training batch size')
     parser.add_argument("--valid_batch_size", default=32, type=int,  help='Validation batch size')
     parser.add_argument("--test_batch_size", default=32, type=int,  help='Test batch size')
-    parser.add_argument("--epochs", default=4, type=int,  help='Number of training epochs')
+    parser.add_argument("--epochs", default=1, type=int,  help='Number of training epochs')
     parser.add_argument("-lr","--learning_rate", default=2e-5, type=float,  help='The learning rate to use')
     parser.add_argument("-wd","--weight_decay", default=1e-4, type=float,  help=' Decoupled weight decay to apply')
     parser.add_argument("--adamw_epsilon", default=1e-8, type=float,  help='AdamW epsilon for numerical stability')
@@ -64,7 +64,7 @@ def get_parser():
     parser.add_argument("--ensemble_type", type=str, default="max-voting", help="Ensemble type - max-voting or averaging")
 
     parser.add_argument("--run_path", default="../Runs/", type=str, help='Path to Run logs')
-    parser.add_argument("--dataset_path", default="../Dataset/BinOneRest/", type=str, help='Path to dataset file')
+    parser.add_argument("--dataset_path", default="../Dataset/SixClass/", type=str, help='Path to dataset file')
     parser.add_argument("--model_path", default="../Models/", type=str, help='Save best model')
     parser.add_argument("--output_path", default="../Output/", type=str, help='Get predicted labels for test data')
     parser.add_argument("--figure_path", default="../Figures/", type=str, help='Directory for accuracy and loss plots')
