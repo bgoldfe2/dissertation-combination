@@ -1,0 +1,7 @@
+*.zip
+*.bin
+Final Training
+Scripts/__pycache__/
+Dataset/*.*
+Models/*.csv
+Paper\ Figures/
