@@ -33,6 +33,8 @@ def train_fn(data_loader, model, optimizer, device, scheduler, args: Model_Confi
         #print(data)
         #asdf
         output, target, input_ids = generate_output(data, model, device, args)
+        #print("output is ", output)
+        #print("target is ", target)
 
         loss = loss_fn(output, target)
         #print("loss type is ", type(loss))
@@ -98,9 +100,11 @@ def test_eval_fn(data_loader, model, device, args):
 
     with torch.no_grad():
         for ii, data in enumerate(progress_bar):
+            #print(data)
             output, target, input_ids = generate_output(data, model, device, args)
 
             loss = loss_fn(output, target)
+            #print(loss)
             output = torch.log_softmax(output, dim = 1)
             regular_probs = torch.softmax(output, dim = 1)
             #print("output after log_softmax ", output)

@@ -38,6 +38,8 @@ def get_combo_data(t1, t2, df_in):
 
     #print("df1 after loc filter ", df1)
 
+    # This is required for the CrossEntropy function to work correctly
+    # This will require decoding during the ensemble function
     df1['target'] = 0
     df2['target'] = 1
 

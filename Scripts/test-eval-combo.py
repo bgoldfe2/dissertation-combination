@@ -5,37 +5,25 @@
 
 from Model_Config import Model_Config
 
-from evaluate import evaluate_all_models
+from combo_evaluate import evaluate_all_combo_models, eval_vote_files
 from driver import get_parser
-from ensemble import averaging, max_vote
 
-def test_eval(args: Model_Config):
-
-    evaluate_all_models(args)
-
-def test_average_ensemble(args):
-
-    return averaging(args)
-
-def test_max_vote(args):
-
-    max_vote(args)
-
-if __name__=="__main__":
-    
+def test_combo():
     parser = get_parser()
     raw_args = parser.parse_args()
 
     # Declare the model list and pre-trained model
-    model_list = [0, 1, 2, 4 , 5]
+    comb_trt_pairs = ['Age_Ethnicity', 'Age_Gender', 'Age_Notcb', 'Age_Others', 'Age_Religion',
+     'Ethnicity_Gender', 'Ethnicity_Notcb', 'Ethnicity_Others', 'Ethnicity_Religion', 'Gender_Notcb',
+     'Gender_Others', 'Gender_Religion', 'Notcb_Others', 'Notcb_Religion', 'Others_Religion']
     pretrained_model = 'roberta-base'
         
     args = Model_Config(raw_args)
-    args.model_list = model_list
+    args.model_list = comb_trt_pairs
     args.pretrained_model = pretrained_model
 
     # TODO currently hardcode this test run folder
-    run2test =  "2023-08-14_16_20_29--roberta-base" #2023-07-03_14_53_05--deberta-v3-base"
+    run2test =  "2023-08-30_18_54_29--roberta-base" 
     folder_name = "../Runs/" + run2test 
 
     # High level folders defined
@@ -47,14 +35,11 @@ if __name__=="__main__":
 
     print('args.model_path in eval_test are\n',args.model_path)
 
-    # Test the evaluate.py - evaluate_all_models() function
-    # This I guess passed as I can do a full training run 8/14
-    test_eval(args)
+    # Perform inference for test data
+    evaluate_all_combo_models(args)
 
-    # Test the averaging() function in ensembles.py
-    #avg_rst = test_average_ensemble(args)
-    #print(type(avg_rst))
-    #print(avg_rst)
 
-    # Test the max_vote() function in ensembles.py
-    #test_max_vote(args)
+if __name__=="__main__":
+    #test_combo()
+
+    eval_vote_files()

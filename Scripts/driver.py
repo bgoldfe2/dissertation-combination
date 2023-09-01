@@ -46,7 +46,7 @@ def get_parser():
     parser.add_argument("--train_batch_size", default=32, type=int,  help='Training batch size')
     parser.add_argument("--valid_batch_size", default=32, type=int,  help='Validation batch size')
     parser.add_argument("--test_batch_size", default=32, type=int,  help='Test batch size')
-    parser.add_argument("--epochs", default=1, type=int,  help='Number of training epochs')
+    parser.add_argument("--epochs", default=5, type=int,  help='Number of training epochs')
     parser.add_argument("-lr","--learning_rate", default=2e-5, type=float,  help='The learning rate to use')
     parser.add_argument("-wd","--weight_decay", default=1e-4, type=float,  help=' Decoupled weight decay to apply')
     parser.add_argument("--adamw_epsilon", default=1e-8, type=float,  help='AdamW epsilon for numerical stability')

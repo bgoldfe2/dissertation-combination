@@ -5,6 +5,8 @@
 
 traits ={ '0': "Age", '1': "Ethnicity", '2': "Gender", '3': "Notcb", '4': "Others", '5': "Religion"}
 
+rev_traits = { "Age" : 0, "Ethnicity" : 1, "Gender" : 2, "Notcb" : 3, "Others" : 4, "Religion" : 5}
+
 class Model_Config:
 
     def __init__(self, args):

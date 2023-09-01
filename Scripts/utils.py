@@ -225,34 +225,28 @@ def load_models(args: Model_Config):
 
     # This function is refactored from multi-architecture to
     # multi-trait. The architecture for each model is consistent
-    # as RoBERTa, but each of the five models are based on
-    # one of the five cyberbullying traits
-    # NOTE: I may want to add in a one vs rest model of Notcb vs all traits
+    # as RoBERTa, but each of the fifteen models are based on
+    # one pair combination of the six traits
     
-    # TODO a path for each trait
-    # TODO return a list of models - one model for each trait
+    comb_trt_pairs = args.model_list
 
-    all_trt_models = defaultdict(list)
-    print("traits is &&&&&&&&&&&&&& ", traits)
-    lm_traits = copy.deepcopy(traits)
-    lm_traits.pop('3')
-    just_trts = list(lm_traits.values())
+    print('just trt list of values ', comb_trt_pairs)
 
-    print('just trt list of values ', just_trts)
+    all_combo_pair_models = {}
 
     # Loop required to capture each of the current (variable for future growth) five trait models
-    for trt in just_trts:
-        mdl_path = ''.join([args.model_path, trt, '_Best_Val_Acc.bin'])
+    for pair in comb_trt_pairs:
+        mdl_path = ''.join([args.model_path, pair, '_Best_Val_Acc.bin'])
         print('model path in load models is ', mdl_path)
 
         roberta_path = (mdl_path)
         args.pretrained_model="roberta-base"
         roberta = RobertaFGBC(args)        
         roberta.load_state_dict(torch.load(roberta_path))
-        all_trt_models[trt] = roberta
+        all_combo_pair_models[pair] = roberta
     
     #print("hope this works ", all_trt_models)
-    return all_trt_models 
+    return all_combo_pair_models 
 
 def oneHot(arr):
     b = np.zeros((arr.size, arr.max()+1))
