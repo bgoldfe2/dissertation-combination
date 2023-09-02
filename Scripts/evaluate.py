@@ -199,7 +199,7 @@ def evaluate_all_models(args: Model_Config):
         test_df.loc[test_df['label'] == trt, 'target'] = 0
         test_df.loc[test_df['label'] != trt, 'target'] = 1
         trt_mdl.to(device)
-        args.pretrained_model="roberta-base"
+        args.pretrained_model="roberta-large"
         #print(test_df)
         #test_df.to_csv(''.join([args.ensemble_path, 'ensemble_test_data.csv']), index=True)
         # TODO this is missing original targets of 3, Notcb need those back in?

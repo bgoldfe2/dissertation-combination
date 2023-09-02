@@ -119,8 +119,9 @@ def rocauc(args):
     del xlnet, test_data_loader
 
     roberta.to(device)
-    test_data_loader = generate_dataset_for_ensembling(pretrained_model="roberta-base", df=test_df)
-    y_pred, y_test, y_proba = test_eval_fn(test_data_loader, roberta, device, pretrained_model="roberta-base")
+    # REGULAR TO LARGE
+    test_data_loader = generate_dataset_for_ensembling(pretrained_model="roberta-large", df=test_df)
+    y_pred, y_test, y_proba = test_eval_fn(test_data_loader, roberta, device, pretrained_model="roberta-large")
     calc_roc_auc(np.array(y_test), np.array(y_proba), args, name='RoBERTa')
     del roberta, test_data_loader
 
@@ -159,7 +160,7 @@ def averaging(args):
     del xlnet, test_data_loader
 
     roberta.to(device)
-    args.pretrained_model="roberta-base"
+    args.pretrained_model="roberta-large"
     test_data_loader = generate_dataset_for_ensembling(args, df=test_df)
     roberta_output, target = test_eval_fn_ensemble(test_data_loader, roberta, device, args)
     del roberta, test_data_loader
@@ -247,9 +248,10 @@ def averaging3(args):
     xlnet_output, target = test_eval_fn_ensemble(test_data_loader, xlnet, device, pretrained_model="xlnet-base-cased")
     del xlnet, test_data_loader
 
+    # REGULAR TO LARGE
     roberta.to(device)
-    test_data_loader = generate_dataset_for_ensembling(pretrained_model="roberta-base", df=test_df)
-    roberta_output, target = test_eval_fn_ensemble(test_data_loader, roberta, device, pretrained_model="roberta-base")
+    test_data_loader = generate_dataset_for_ensembling(pretrained_model="roberta-large", df=test_df)
+    roberta_output, target = test_eval_fn_ensemble(test_data_loader, roberta, device, pretrained_model="roberta-large")
     del roberta, test_data_loader
 
     

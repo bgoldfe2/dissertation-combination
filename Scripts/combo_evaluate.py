@@ -201,7 +201,9 @@ def evaluate_all_combo_models(args: Model_Config):
     for trt_pair, trt_pair_mdl in all_combination_models.items():
                 
         trt_pair_mdl.to(device)
-        args.pretrained_model="roberta-base"
+        # REGULAR TO LARGE
+        #args.pretrained_model="roberta-base"
+        args.pretrained_model="roberta-large"
         #print(test_df)
         #test_df.to_csv(''.join([args.ensemble_path, 'ensemble_test_data.csv']), index=True)
         # TODO this is missing original targets of 3, Notcb need those back in?
@@ -229,10 +231,9 @@ def evaluate_all_combo_models(args: Model_Config):
         del trt_pair_mdl, test_data_loader
 
 
-def eval_vote_files(): 
+def eval_vote_files(ensemble_path): 
 
-    # HARDCODE add in args for later implementations
-    ensemble_path = '../Runs/2023-08-30_18_54_29--roberta-base/Ensemble/'
+    
 
     # Create the Combination of Six Traits pairs set of models 15 models (C6,2)
     comb_trt = ['Age_Ethnicity', 'Age_Gender', 'Age_Notcb', 'Age_Others', 'Age_Religion',

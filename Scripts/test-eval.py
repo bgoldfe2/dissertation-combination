@@ -30,7 +30,7 @@ if __name__=="__main__":
     #model_list = ['microsoft/deberta-v3-base', 'EleutherAI/gpt-neo-125m', 'roberta-base',\
     #                'xlnet-base-cased', 'albert-base-v2']
     
-    model_list = ['roberta-base']
+    model_list = ['roberta-large']
     
     
     args = Model_Config(raw_args)

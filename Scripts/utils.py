@@ -202,7 +202,7 @@ def evaluate_ensemble(max_vote_df, args):
 def generate_dataset_for_ensembling(args, df):
     if(args.pretrained_model == "microsoft/deberta-v3-base"):
         dataset = DatasetDeberta(args, text=df.text.values, target=df.target.values)
-    elif(args.pretrained_model== "roberta-base"):
+    elif(args.pretrained_model== "roberta-large"):
         dataset = DatasetRoberta(args, text=df.text.values, target=df.target.values)
     elif(args.pretrained_model== "xlnet-base-cased"):
         dataset = DatasetXLNet(args, text=df.text.values, target=df.target.values)
@@ -240,7 +240,7 @@ def load_models(args: Model_Config):
         print('model path in load models is ', mdl_path)
 
         roberta_path = (mdl_path)
-        args.pretrained_model="roberta-base"
+        args.pretrained_model="roberta-large"
         roberta = RobertaFGBC(args)        
         roberta.load_state_dict(torch.load(roberta_path))
         all_combo_pair_models[pair] = roberta

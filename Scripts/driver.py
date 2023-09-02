@@ -56,9 +56,9 @@ def get_parser():
     parser.add_argument("--seed", type=int, default=42, help="Seed for reproducibility")
     parser.add_argument("--device", type=str, default="gpu", help="Training device - cpu/gpu")
     #parser.add_argument("--dataset", type=str, default="FGBC", help="Select Dataset - FGBC/Twitter")
-
-    parser.add_argument("--pretrained_model", default="roberta-base", type=str, help='Name of the pretrained model')  
-    parser.add_argument("--roberta_hidden", default=768, type=int, help='Number of hidden states for Roberta')
+    # REGULAR TO LARGE
+    parser.add_argument("--pretrained_model", default="roberta-large", type=str, help='Name of the pretrained model')  
+    parser.add_argument("--roberta_hidden", default=1024, type=int, help='Number of hidden states for Roberta')
 
     # Need to change for Version 3 to tree ensemble
     parser.add_argument("--ensemble_type", type=str, default="max-voting", help="Ensemble type - max-voting or averaging")
@@ -86,14 +86,8 @@ if __name__=="__main__":
     np.random.seed(raw_args.seed)
     torch.manual_seed(raw_args.seed)
     torch.cuda.manual_seed(raw_args.seed)
-    
-    # Declare the model list - From version 1 model ensemble
-    #model_list = ['microsoft/deberta-v3-base', 'EleutherAI/gpt-neo-125m', 'roberta-base',\
-    #                'xlnet-base-cased', 'albert-base-v2']
-    
-    # Version 3 - Single model in list being roberta-base
-    #               Keeping list syntax as may include BertViz or others
-    model_list = ['roberta-base']
+    # REGULAR TO LARGE
+    model_list = ['roberta-large']
 
     # convert immutable args to python class instance and set up dynamic folder structure
     args = Model_Config(raw_args)
