@@ -165,15 +165,15 @@ def parse_semantic_vote(run_folder):
         # Print the confusion matrix
         print(cm)
         fig1, ax = plt.subplots()
-        plt.title(''.join(["Single Trait ", file_trt, " vs All the Rest"]))
+        plt.title(''.join(["One versus One ", t1, " vs ", t2]))
         sns.heatmap(cm, annot=True, fmt='d')
         plt.xlabel('Predicted')
         plt.ylabel('True')
-        trt_labels = [file_trt,'All-the-Rest']
+        trt_labels = [t1,t2]
         ax.set_yticklabels(trt_labels)
         ax.set_xticklabels(trt_labels)
         #plt.show()  # Show all plots at the end - can be same for saving?
-        fig1.savefig(''.join([run_folder, 'Ensemble/Figures/','ensemble-bin-',file_trt,'-vs-All-the-Rest-conf-mat.pdf']))
+        fig1.savefig(''.join([run_folder, 'Ensemble/Figures/','ensemble-bin-OvO-',t1,'-vs-', t2, '-conf-mat.pdf']))
         
         # Check to see the numbers add to 9541 = size of the test set
         cm_sum =  cm.sum()
@@ -189,8 +189,10 @@ def parse_semantic_vote(run_folder):
         # print(type(df_cnt_fp))
         # print(df_cnt_fp.axes)
 
-        fp = df_cnt_fp.loc[df_cnt_fp['label']==file_trt, 'count'].values[0]
-        fn = df_cnt_fn.loc[df_cnt_fn['label']==file_trt, 'count'].values[0]
+
+        # GUESS? :-)
+        fp = df_cnt_fp.loc[df_cnt_fp['label']==t1, 'count'].values[0]
+        fn = df_cnt_fn.loc[df_cnt_fn['label']==t2, 'count'].values[0]
         print(type(fp))
         print(fp)
         
@@ -199,8 +201,8 @@ def parse_semantic_vote(run_folder):
 
         # Create each sub-confusion matrix of 2 x 2 for the five traits
         # Test hard coded for religion
-        total_in_trt = count.get(file_trt)  # 1575
-        print('total in ', file_trt, ' religion is ', total_in_trt)
+        total_in_trt = count.get(t1)  # 1575
+        print('total in ', t1, ' religion is ', total_in_trt)
 
         total_true_religion = cm[0][0]
         total_true_notcb = cm[1][1]
@@ -242,6 +244,6 @@ def parse_semantic_vote(run_folder):
 
 if __name__=="__main__":
     test_run = '../Runs/2023-08-30_18_54_29--roberta-base/'
-    semantic_vote(test_run)
+    #semantic_vote(test_run)
         
-    #parse_semantic_vote(test_run)
+    parse_semantic_vote(test_run)
