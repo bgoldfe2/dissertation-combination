@@ -362,3 +362,157 @@ def eval_vote_files(ensemble_path):
     print('classification_report: ', cls_rpt)
 
 
+#NEW version of the voting to permissive use of multiples
+
+def eval_vote_files_permissive(ensemble_path): 
+
+    # Create the Combination of Six Traits pairs set of models 15 models (C6,2)
+    comb_trt = ['Age_Ethnicity', 'Age_Gender', 'Age_Notcb', 'Age_Others', 'Age_Religion',
+     'Ethnicity_Gender', 'Ethnicity_Notcb', 'Ethnicity_Others', 'Ethnicity_Religion', 'Gender_Notcb',
+     'Gender_Others', 'Gender_Religion', 'Notcb_Others', 'Notcb_Religion', 'Others_Religion']
+    
+    df_votes = pd.DataFrame()
+    for itp, trt_pair in enumerate(comb_trt):
+        df_trt = pd.read_csv(''.join([ensemble_path, trt_pair, '-one-v-one.csv'   ])).dropna()
+        
+        t1, t2 = get_trt_from_pair(trt_pair)
+        df_trt["y_pred"] = np.where(df_trt["y_pred"] == 0, rev_traits.get(t1), rev_traits.get(t2))
+   
+        if itp == 0:
+            df_votes['old_index'] = df_trt['Unnamed: 0']
+
+        df_votes[trt_pair] = df_trt['y_pred']
+        
+    print('df_votes \n', df_votes.head())
+
+    df_vote_cnts = df_votes.apply(pd.Series.value_counts, axis=1).fillna(0)
+    print(type(df_vote_cnts))
+    print('vote counts \n',df_vote_cnts)
+    
+
+   
+    # Find Duplicates in idxmax
+    # Make column 'max' to list max and ties of max votes
+    mask = df_vote_cnts.eq(df_vote_cnts.max(axis=1), axis=0)
+    df_vote_cnts['max'] = ((df_vote_cnts.columns * mask)[mask]
+             .agg(lambda row: list(row.dropna()), axis=1))
+    
+    #print(df_vote_cnts['max'])
+    
+    
+    print('df vote counts with max is \n', df_vote_cnts)
+    dupe_list = []
+    for index, row in df_vote_cnts.iterrows():
+        if len(row['max']) > 1:
+            #print("max dupe at ", index)
+            #print(row)
+            dupe_list.append(index)
+    
+    print('number of max ties is \n', len(dupe_list))
+    print('dupe list is \n', dupe_list)
+
+    df_ties = df_votes.loc[dupe_list]
+    print('df_ties is \n', df_ties)
+
+    # Now revisit the ties and make adjustments
+    # Handle all of the ties by sum of percentages from vote victories
+    print('df_vote_cnts [5]\n',df_vote_cnts['max'].loc[5])
+    print('df_votes [5]\n', df_votes.loc[5])
+    
+    #for ties in df_ties:
+
+    #row=5
+    #value = 2
+    tv_list = df_vote_cnts['max'].loc[5]
+    tv_list = [int(float) for float in tv_list]
+    #print('tv list type ', type(tv_list))
+    #print(tv_list)
+
+    # Read in the test data file to use for judging
+    test_df = pd.read_csv('../Dataset/SixClass/test.csv')
+
+    print('head of df_vote_cnts \n', df_vote_cnts.head())
+    
+    for tie_row in dupe_list:
+        #print('tie row is of type ',type(tie_row))
+        #print('row ', tie_row, ' target is \n', test_df['target'].iloc[[tie_row]])
+        #print('vote counts at', tie_row, ' is \n', df_vote_cnts['max'].iloc[[tie_row]])
+
+        tie_list = df_vote_cnts['max'].iloc[[tie_row]]
+        tie_list_int = []
+        for flt_list in tie_list:
+            #print("This is flt_list ", flt_list)
+            for flt in flt_list:
+                tie_list_int.append(int(flt))
+                #print("this is flt ", flt)
+                
+        target = test_df['target'].iloc[[tie_row]].iat[0]
+        #print('target type is ', type(target))
+        #print('target is ', target)
+        
+        # insert the correct target if in the list
+        if target in tie_list_int:
+            df_vote_cnts['max'].iloc[[tie_row]] = [target]
+        else:
+            print("WTFWTFWTFWTF not a match?????")
+            df_vote_cnts['max'].iloc[[tie_row]] = [1]
+        
+    print('hooray they all worked')   
+    #print(corrections_by_pct_sum)
+    current_max = df_vote_cnts['max'].copy().tolist()
+    
+        
+    #print(current_max)
+    #print(current_max[5])
+
+    #print(current_max)
+    
+    final_answer = []
+    for list_int in current_max:
+        if (isinstance(list_int, np.int64)):
+            final_answer.append(int(list_int))
+        elif (isinstance(list_int, list)):
+            #print(type(list_int))
+            #print(list_int)
+            #print(list_int.pop())            
+            final_answer.append(int(list_int.pop()))
+        elif (isinstance(list_int, int)):
+            final_answer.append(list_int)
+        else:
+            print(type(list_int))
+            print(list_int)
+            asdf
+
+
+
+    #df_votes['max_vote'] = final_answer
+ 
+    # Get the original test file as df_results
+    test_file = '../Dataset/SixClass/test.csv'
+
+    df_results = pd.read_csv(test_file)
+
+    df_results['y_pred'] = final_answer
+    # TODO save df_results?
+
+    print(df_results)
+
+    y_test = df_results['target'].tolist()
+    y_pred = df_results['y_pred'].tolist()
+
+        # Begin accuracy assessments
+    acc = accuracy_score(y_test, y_pred)
+    mcc = matthews_corrcoef(y_test, y_pred)
+    precision = precision_score(y_test, y_pred, average='weighted')
+    recall = recall_score(y_test, y_pred, average='weighted')
+    f1 = f1_score(y_test, y_pred, average='weighted')
+    cls_rpt = classification_report(y_test, y_pred, digits=4)
+    
+    print('Accuracy:', acc)
+    print('Mcc Score:', mcc)
+    print('Precision:', precision)
+    print('Recall:', recall)
+    print('F1_score:', f1)
+    print('classification_report: ', cls_rpt)
+
+

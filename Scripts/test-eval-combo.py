@@ -5,7 +5,7 @@
 
 from Model_Config import Model_Config
 
-from combo_evaluate import evaluate_all_combo_models, eval_vote_files
+from combo_evaluate import evaluate_all_combo_models, eval_vote_files, eval_vote_files_permissive
 from driver import get_parser
 
 def test_combo(run2test):
@@ -40,9 +40,10 @@ if __name__=="__main__":
     # TODO currently hardcode this test run folder
     test_folder =  '../Runs/2023-09-01_17_11_29--roberta-large'
 
-    test_combo(test_folder)
+    #test_combo(test_folder)
 
     # HARDCODE add in args for later implementations
     ensemble_path = ''.join([test_folder, '/Ensemble/'])
 
-    eval_vote_files(ensemble_path)
+    #eval_vote_files(ensemble_path)
+    eval_vote_files_permissive(ensemble_path)

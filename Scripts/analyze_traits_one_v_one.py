@@ -64,16 +64,20 @@ def parse_sbe(run_folder):
         # Print the confusion matrix
         print(cm)
 
-        fig1, ax = plt.subplots()
-        plt.title(''.join(["Trait ", t1, " vs ", t2]))
-        sns.heatmap(cm, annot=True, fmt='d')
-        plt.xlabel('Predicted')
-        plt.ylabel('True')
+        fig1, ax = plt.subplots(figsize=(7, 6))
+        title_font = {'size':'18'}
+        plt.autoscale()
+        plt.title(''.join(["Trait ", t1, " vs ", t2]), fontdict=title_font)
+        sns.heatmap(cm, annot=True, fmt="g", annot_kws={'size': 24}, cbar_kws={'ticks': []})
+        label_font = {'size':'18'} 
+        plt.xlabel('Predicted', fontdict=label_font)
+        plt.ylabel('True', fontdict=label_font)
         trt_labels = [t1,t2]
+        ax.tick_params(axis='both', which='major', labelsize=18)
         ax.set_yticklabels(trt_labels)
         ax.set_xticklabels(trt_labels)
         #plt.show()  # Show all plots at the end - can be same for saving?
-        fig1.savefig(''.join([run_folder, 'Ensemble/Figures/','ensemble-bin-OvO-',t1,'-vs-', t2, '-conf-mat.pdf']))
+        fig1.savefig(''.join([run_folder, 'Ensemble/Figures/','ensemble-bin-OvO-',t1,'-vs-', t2, '-conf-mat.png']))
         
         # Check to see the numbers add to 9541 = size of the test set
         cm_sum =  cm.sum()
@@ -121,7 +125,7 @@ def parse_sbe(run_folder):
         print(" x ", x, " y ", y)
         plt.title("".join([t1, " vs ", t2, " with " , t1, " that were labelled ", t2]))
         plt.bar(x, y)
-        fig2.savefig(''.join([run_folder, 'Ensemble/Figures/','ensemble-bin-OvO',t1,'-False-', t2, '-bar-plot.pdf']))
+        #fig2.savefig(''.join([run_folder, 'Ensemble/Figures/','ensemble-bin-OvO',t1,'-False-', t2, '-bar-plot.svg']))
 
 
         # Show the distribution of the Notcb inferences that should have been cyberbullying
@@ -133,7 +137,7 @@ def parse_sbe(run_folder):
         print(" x ", x, " y ", y)
         plt.title("".join([t1, " vs ", t2, " Model, ",t2, " and all the rest that were labelled ", t1]))
         plt.bar(x, y)
-        fig3.savefig(''.join([run_folder, 'Ensemble/Figures/','ensemble-bin-', t2, '-False-',t1,'.pdf']))
+        #fig3.savefig(''.join([run_folder, 'Ensemble/Figures/','ensemble-bin-', t2, '-False-',t1,'.svg']))
 
         # Show the plot TURN ON FOR DEBUG
         #plt.show()
