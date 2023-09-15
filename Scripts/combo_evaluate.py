@@ -500,7 +500,7 @@ def eval_vote_files_permissive(ensemble_path):
     y_test = df_results['target'].tolist()
     y_pred = df_results['y_pred'].tolist()
 
-        # Begin accuracy assessments
+    # Begin accuracy assessments
     acc = accuracy_score(y_test, y_pred)
     mcc = matthews_corrcoef(y_test, y_pred)
     precision = precision_score(y_test, y_pred, average='weighted')
