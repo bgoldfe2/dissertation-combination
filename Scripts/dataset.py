@@ -2,7 +2,7 @@
 # class: CSI 999
 # university: George Mason University
 # date: July 23, 2023
-# adapted from prior work
+# adapted from prior work by Ahmed et al. 2022
 
 import torch
 import pandas as pd
@@ -204,7 +204,6 @@ class DatasetXLNet:
             "target":torch.tensor(self.target[item], dtype = torch.long)
         }
     
-# TODO look into a split that maintains the balance for the trait classes
 # new version has seed set to 7 not 42 and not to None which is in earlier version
 def train_validate_test_split(df, train_percent=0.6, validate_percent=.2, seed=7):
     np.random.seed(seed)
@@ -217,6 +216,7 @@ def train_validate_test_split(df, train_percent=0.6, validate_percent=.2, seed=7
     test = df.iloc[perm[validate_end:]]
     return train, validate, test
 
+# New split function that maintains the balance for the trait classes
 def train_validate_test_balanced_split(df, train_percent=0.6, validate_percent=.2, seed=7):
     np.random.seed(seed)
     #perm = np.random.permutation(df.index)
