@@ -359,7 +359,7 @@ def eval_vote_files(ensemble_path):
     print('Precision:', precision)
     print('Recall:', recall)
     print('F1_score:', f1)
-    print('classification_report: ', cls_rpt)
+    print('classification_report: \n', cls_rpt)
 
 
 #NEW version of the voting to permissive use of multiples
@@ -513,6 +513,6 @@ def eval_vote_files_permissive(ensemble_path):
     print('Precision:', precision)
     print('Recall:', recall)
     print('F1_score:', f1)
-    print('classification_report: ', cls_rpt)
+    print('classification_report: \n', cls_rpt)
 
 
