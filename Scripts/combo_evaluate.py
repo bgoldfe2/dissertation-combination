@@ -123,7 +123,9 @@ def test_evaluate(trt_pair, test_df, test_data_loader, model, device, args: Mode
     plt.figure(3)
 
     labels = ['True Pos','False Pos','False Neg','True Neg']
-    categories = ['1', '0']
+    # change 0,1 to the two traits in order
+    t1, t2 = get_trt_from_pair(trt_pair)
+    categories = [t1, t2]
     make_confusion_matrix(args, trt_pair, conf_mat, 
                       group_names=labels,
                       categories=categories, 
@@ -449,7 +451,10 @@ def eval_vote_files_permissive(ensemble_path):
         target = test_df['target'].iloc[[tie_row]].iat[0]
         #print('target type is ', type(target))
         #print('target is ', target)
-        
+
+        # TODO Check that this works to persist the dupelicates for 
+        # semi-supervised analysis of multi-label output
+        df_vote_cnts['dupes'] = df_vote_cnts['max'].iloc[[tie_row]]
         # insert the correct target if in the list
         if target in tie_list_int:
             df_vote_cnts['max'].iloc[[tie_row]] = [target]
