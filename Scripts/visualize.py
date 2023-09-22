@@ -9,6 +9,11 @@ from collections import defaultdict
 from Model_Config import traits
 import numpy as np
 import seaborn as sns
+from PIL import Image
+from wordcloud import WordCloud, STOPWORDS, ImageColorGenerator
+import os
+import matplotlib.pyplot as plt
+import pandas as pd
 
 
 # Due to circular import just copying the simple function from train.py
@@ -169,24 +174,58 @@ def make_confusion_matrix(args,
     plt.savefig(''.join([args.figure_path, trt_pair, '_confusion_matrix.pdf']), dpi=400)
     plt.clf()
     plt.close()
-    
+
+def create_wordcloud(directory):
+
+    for filename in os.listdir(directory):
+        f = os.path.join(directory, filename)
+        # checking if it is a file
+        if os.path.isfile(f):
+            print(f)
+            df = pd.read_csv(f)
+            print(f)
+            title = f.split('_')[1].split('.')[0]
+            
+            print(df.head())
+            print(df.columns)
+            
+            tweets = " ".join(twt for twt in df.text)
+            print ("There are {} words in the age category.".format(len(tweets)))
+            # Create stopword list:
+            stopwords = set(STOPWORDS)
+            stopwords.update(["RT", "http//t.co/", "t", "co", "https"])
+
+            # Generate a word cloud image
+            wordcloud = WordCloud(stopwords=stopwords, background_color="white", min_font_size=7, max_words=200).generate(tweets)
+
+            # Display the generated image:
+            # the matplotlib way:
+            fig1, ax = plt.subplots()
+            plt.imshow(wordcloud, interpolation='bilinear')
+            plt.axis("off")
+            plt.title(title)
+            #plt.show()
+            
+            fig1.savefig(''.join(['/home/bruce/dev/dissertation-combination/Dataset/Figures/', title,'wordcloud.png']))
+            
 
 if __name__=="__main__":
     
-    history = defaultdict(list)
-    history['train_acc'] = [0.8809, 0.9798, 0.9864, 0.991]
-    history['val_acc'] = [0.9715, 0.9854, 0.9864, 0.9857]
-    history['train_loss'] = [0.2564959865777443, 0.08274737073108554, 0.05754305351215104, 0.04171089528749387]
-    history['val_loss'] = [0.11794130202157027, 0.057937183756042614, 0.055730998901782014, 0.058969416937819034]
+    # history = defaultdict(list)
+    # history['train_acc'] = [0.8809, 0.9798, 0.9864, 0.991]
+    # history['val_acc'] = [0.9715, 0.9854, 0.9864, 0.9857]
+    # history['train_loss'] = [0.2564959865777443, 0.08274737073108554, 0.05754305351215104, 0.04171089528749387]
+    # history['val_loss'] = [0.11794130202157027, 0.057937183756042614, 0.055730998901782014, 0.058969416937819034]
     
-    plot = save_acc_loss_curves(0, history)
+    # plot = save_acc_loss_curves(0, history)
 
-    history = defaultdict(list)
-    history['train_acc'] = [0.809, 0.8798, 0.9864, 0.991]
-    history['val_acc'] = [0.7715, 0.7854, 0.7864, 0.7857]
-    history['train_loss'] = [0.2564959865777443, 0.08274737073108554, 0.05754305351215104, 0.04171089528749387]
-    history['val_loss'] = [0.11794130202157027, 0.057937183756042614, 0.055730998901782014, 0.058969416937819034]
+    # history = defaultdict(list)
+    # history['train_acc'] = [0.809, 0.8798, 0.9864, 0.991]
+    # history['val_acc'] = [0.7715, 0.7854, 0.7864, 0.7857]
+    # history['train_loss'] = [0.2564959865777443, 0.08274737073108554, 0.05754305351215104, 0.04171089528749387]
+    # history['val_loss'] = [0.11794130202157027, 0.057937183756042614, 0.055730998901782014, 0.058969416937819034]
    
-    plot2 = save_acc_loss_curves(1, history)
+    # plot2 = save_acc_loss_curves(1, history)
 
-    
+    dir_data = '../Dataset/Binary/train/'
+    create_wordcloud(dir_data)
