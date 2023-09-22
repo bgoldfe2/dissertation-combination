@@ -123,7 +123,9 @@ def test_evaluate(trt_pair, test_df, test_data_loader, model, device, args: Mode
     plt.figure(3)
 
     labels = ['True Pos','False Pos','False Neg','True Neg']
-    categories = ['1', '0']
+    # change 0,1 to the two traits in order
+    t1, t2 = get_trt_from_pair(trt_pair)
+    categories = [t1, t2]
     make_confusion_matrix(args, trt_pair, conf_mat, 
                       group_names=labels,
                       categories=categories, 
@@ -359,7 +361,7 @@ def eval_vote_files(ensemble_path):
     print('Precision:', precision)
     print('Recall:', recall)
     print('F1_score:', f1)
-    print('classification_report: ', cls_rpt)
+    print('classification_report: \n', cls_rpt)
 
 
 #NEW version of the voting to permissive use of multiples
@@ -449,7 +451,10 @@ def eval_vote_files_permissive(ensemble_path):
         target = test_df['target'].iloc[[tie_row]].iat[0]
         #print('target type is ', type(target))
         #print('target is ', target)
-        
+
+        # TODO Check that this works to persist the dupelicates for 
+        # semi-supervised analysis of multi-label output
+        df_vote_cnts['dupes'] = df_vote_cnts['max'].iloc[[tie_row]]
         # insert the correct target if in the list
         if target in tie_list_int:
             df_vote_cnts['max'].iloc[[tie_row]] = [target]
@@ -500,7 +505,7 @@ def eval_vote_files_permissive(ensemble_path):
     y_test = df_results['target'].tolist()
     y_pred = df_results['y_pred'].tolist()
 
-        # Begin accuracy assessments
+    # Begin accuracy assessments
     acc = accuracy_score(y_test, y_pred)
     mcc = matthews_corrcoef(y_test, y_pred)
     precision = precision_score(y_test, y_pred, average='weighted')
@@ -513,6 +518,6 @@ def eval_vote_files_permissive(ensemble_path):
     print('Precision:', precision)
     print('Recall:', recall)
     print('F1_score:', f1)
-    print('classification_report: ', cls_rpt)
+    print('classification_report: \n', cls_rpt)
 
 

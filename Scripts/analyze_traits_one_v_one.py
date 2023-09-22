@@ -70,8 +70,9 @@ def parse_sbe(run_folder):
         plt.title(''.join(["Trait ", t1, " vs ", t2]), fontdict=title_font)
         sns.heatmap(cm, annot=True, fmt="g", annot_kws={'size': 24}, cbar_kws={'ticks': []})
         label_font = {'size':'18'} 
-        plt.xlabel('Predicted', fontdict=label_font)
-        plt.ylabel('True', fontdict=label_font)
+        # Oooops switched labels to correct 
+        plt.ylabel('Predicted', fontdict=label_font)
+        plt.xlabel('True', fontdict=label_font)
         trt_labels = [t1,t2]
         ax.tick_params(axis='both', which='major', labelsize=18)
         ax.set_yticklabels(trt_labels)

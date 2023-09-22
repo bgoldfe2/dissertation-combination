@@ -244,6 +244,6 @@ def parse_semantic_vote(run_folder):
 
 if __name__=="__main__":
     test_run = '../Runs/2023-08-30_18_54_29--roberta-base/'
-    #semantic_vote(test_run)
+    semantic_vote(test_run)
         
-    parse_semantic_vote(test_run)
+    #parse_semantic_vote(test_run)

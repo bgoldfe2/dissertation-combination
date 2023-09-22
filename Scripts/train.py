@@ -17,7 +17,7 @@ from evaluate import test_evaluate
 
 import utils
 from visualize import save_acc_loss_curves   #save_acc_curves, save_loss_curves 
-from dataset import train_validate_test_split
+from dataset import train_validate_test_split, train_validate_test_balanced_split
 
 import utils
 import matplotlib.pyplot as plt
@@ -180,6 +180,10 @@ def run(args: Model_Config):
     
 def create_dataset_files(args):
     if args.dataset == "FGBC":
+
+        # TODO This file needs to be recreated to be the exact 48,000 tweets
+        #           then use the balanced split method to divide into six
+        #           exactly balanced trait classes.
         df = pd.read_csv(f'{args.dataset_path}dataset.csv').dropna()
 
         if args.classes == 5:
@@ -193,6 +197,7 @@ def create_dataset_files(args):
 
     #Splitting the dataset
     train_df, valid_df, test_df = train_validate_test_split(df)
+    train_df, valid_df, test_df = train_validate_test_balanced_split(df)
     train_df.to_csv(f'{args.dataset_path}train.csv')
     valid_df.to_csv(f'{args.dataset_path}valid.csv')
     test_df.to_csv(f'{args.dataset_path}test.csv')

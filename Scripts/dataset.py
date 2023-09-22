@@ -2,7 +2,7 @@
 # class: CSI 999
 # university: George Mason University
 # date: July 23, 2023
-# adapted from prior work
+# adapted from prior work by Ahmed et al. 2022
 
 import torch
 import pandas as pd
@@ -215,3 +215,39 @@ def train_validate_test_split(df, train_percent=0.6, validate_percent=.2, seed=7
     validate = df.iloc[perm[train_end:validate_end]]
     test = df.iloc[perm[validate_end:]]
     return train, validate, test
+
+# New split function that maintains the balance for the trait classes
+def train_validate_test_balanced_split(df, train_percent=0.6, validate_percent=.2, seed=7):
+    np.random.seed(seed)
+    #perm = np.random.permutation(df.index)
+    a = df['target'].unique()
+    trt_list = sorted(a)
+    
+    train = pd.DataFrame()
+    validate = pd.DataFrame()
+    test = pd.DataFrame()
+
+    for trt in trt_list:
+        df_trt=df.loc[df["target"] == trt]
+        print('trait ', trt, ' length ', len(df_trt))
+        perm = np.random.permutation(df_trt.index)
+        m = len(df_trt.index)
+        train_end = int(train_percent * m)
+        validate_end = int(validate_percent * m) + train_end
+        train = pd.concat([train, df.iloc[perm[:train_end]]])
+        validate = pd.concat([validate, df.iloc[perm[train_end:validate_end]]])
+        test = pd.concat([test, df.iloc[perm[validate_end:]]])
+
+        print('length of test is ', len(train))
+    
+    return train, validate, test
+
+if __name__=="__main__":
+    full_df = pd.read_csv("../Dataset/Full/not_full.csv")
+    train, valid, test = train_validate_test_balanced_split(full_df)
+
+    a = train['target'].unique()
+    trt_list = sorted(a)
+
+    for tgt_cls in trt_list:
+        print(''.join(['class ', str(tgt_cls), ' length is ', str(len(train.loc[train['target'] == tgt_cls]))]))
