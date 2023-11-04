@@ -3,9 +3,11 @@
 # university: George Mason University
 # date: July 23, 2023
 
+# TODO This file may be deprecated as obe
+
 from Model_Config import Model_Config
 
-from combo_evaluate import evaluate_all_combo_models, eval_vote_files, eval_vote_files_permissive
+from combo_evaluate import evaluate_all_combo_models, eval_sum_max, eval_vote_files_multi_label, eval_idx_max
 from driver import get_parser
 
 def test_combo(run2test):
@@ -45,5 +47,6 @@ if __name__=="__main__":
     # HARDCODE add in args for later implementations
     ensemble_path = ''.join([test_folder, '/Ensemble/'])
 
-    #eval_vote_files(ensemble_path)
-    eval_vote_files_permissive(ensemble_path)
+    eval_idx_max(ensemble_path)
+    #eval_sum_max(ensemble_path)
+    #eval_vote_files_multi_label(ensemble_path)

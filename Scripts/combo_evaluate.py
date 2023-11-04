@@ -18,7 +18,10 @@ from Model_Config import Model_Config, traits, rev_traits
 
 from utils import oneHot, roc_curve, auc, generate_dataset_for_ensembling, load_models, set_device
 
-
+# Create the Combination of Six Traits pairs set of models 15 models (C6,2)
+comb_trt = ['Age_Ethnicity', 'Age_Gender', 'Age_Notcb', 'Age_Others', 'Age_Religion',
+     'Ethnicity_Gender', 'Ethnicity_Notcb', 'Ethnicity_Others', 'Ethnicity_Religion', 'Gender_Notcb',
+     'Gender_Others', 'Gender_Religion', 'Notcb_Others', 'Notcb_Religion', 'Others_Religion']
 
 # Due to circular import just copying the simple function from train.py
 def get_trt_from_pair(tp):
@@ -232,15 +235,81 @@ def evaluate_all_combo_models(args: Model_Config):
         test_df.to_csv(''.join([args.ensemble_path, trt_pair, '-one-v-one.csv']), index = False)
         del trt_pair_mdl, test_data_loader
 
+def eval_idx_max(ensemble_path):    
 
-def eval_vote_files(ensemble_path): 
+    df_votes = pd.DataFrame()
+    for trt_pair in comb_trt:
+        df_trt = pd.read_csv(''.join([ensemble_path, trt_pair, '-one-v-one.csv'   ])).dropna()
+        
+        t1, t2 = get_trt_from_pair(trt_pair)
+        df_trt["y_pred"] = np.where(df_trt["y_pred"] == 0, rev_traits.get(t1), rev_traits.get(t2))
+   
+        df_votes[trt_pair] = df_trt['y_pred']
+
+    print('df_votes ', df_votes.head())
+
+    df_vote_cnts = df_votes.apply(pd.Series.value_counts, axis=1).fillna(0)
+    print(type(df_vote_cnts))
+    print('vote counts \n',df_vote_cnts)
+    
+    # Find Duplicates in idxmax
+    # Make column 'max' to list max and ties of max votes
+    mask = df_vote_cnts.eq(df_vote_cnts.max(axis=1), axis=0)
+
+    print("mask is ", mask)
+
+    df_vote_cnts['max'] = ((df_vote_cnts.columns * mask)[mask]
+             .agg(lambda row: list(row.dropna()), axis=1))
+    
+    print('df vote counts with max is \n', df_vote_cnts)
+
+    # The behavior of the pandas idxmax function in the case of
+    # a tie is to simply take the first occuring value in the 
+    # series, this is quasi-random, but contains an obvious bias
+    # towards traits that are earlier in the arbitrary ordering
+    # of the traits in the definitional 'traits' series.
+
+    df_vote_cnts.loc[:, 'y_pred'] = df_vote_cnts['max'].apply(lambda x: x[0])  
+    #df_vote_cnts.loc[:, 'y_pred'] = df_vote_cnts['max'].str.get(0)
+
+    print('df vote cnts y_pred with idxmax\n', df_vote_cnts['y_pred'])
+    
+    
+ 
+    # Get the original test file as df_results
+    test_file = '../Dataset/SixClass/test.csv'
+
+    df_results = pd.read_csv(test_file)
+
+    df_results['y_pred'] = df_vote_cnts['y_pred']
+    # TODO save df_results?
+
+    print(df_results)
+
+    y_test = df_results['target'].tolist()
+    y_pred = df_results['y_pred'].tolist()
+
+        # Begin accuracy assessments
+    acc = accuracy_score(y_test, y_pred)
+    mcc = matthews_corrcoef(y_test, y_pred)
+    precision = precision_score(y_test, y_pred, average='weighted')
+    recall = recall_score(y_test, y_pred, average='weighted')
+    f1 = f1_score(y_test, y_pred, average='weighted')
+    cls_rpt = classification_report(y_test, y_pred, digits=4)
+    
+    print('Accuracy:', acc)
+    print('Mcc Score:', mcc)
+    print('Precision:', precision)
+    print('Recall:', recall)
+    print('F1_score:', f1)
+    print('classification_report: \n', cls_rpt)
+
+
+#def eval_vote_files(ensemble_path): 
+# Renamed to sum_max as this was idx_max then extended in place
+def eval_sum_max(ensemble_path):    
 
     
-
-    # Create the Combination of Six Traits pairs set of models 15 models (C6,2)
-    comb_trt = ['Age_Ethnicity', 'Age_Gender', 'Age_Notcb', 'Age_Others', 'Age_Religion',
-     'Ethnicity_Gender', 'Ethnicity_Notcb', 'Ethnicity_Others', 'Ethnicity_Religion', 'Gender_Notcb',
-     'Gender_Others', 'Gender_Religion', 'Notcb_Others', 'Notcb_Religion', 'Others_Religion']
     
     df_votes = pd.DataFrame()
     for trt_pair in comb_trt:
@@ -364,15 +433,11 @@ def eval_vote_files(ensemble_path):
     print('classification_report: \n', cls_rpt)
 
 
-#NEW version of the voting to permissive use of multiples
+#Deprecated name permissive now multi_label
 
-def eval_vote_files_permissive(ensemble_path): 
+#def eval_vote_files_permissive(ensemble_path): 
+def eval_vote_files_multi_label(ensemble_path):
 
-    # Create the Combination of Six Traits pairs set of models 15 models (C6,2)
-    comb_trt = ['Age_Ethnicity', 'Age_Gender', 'Age_Notcb', 'Age_Others', 'Age_Religion',
-     'Ethnicity_Gender', 'Ethnicity_Notcb', 'Ethnicity_Others', 'Ethnicity_Religion', 'Gender_Notcb',
-     'Gender_Others', 'Gender_Religion', 'Notcb_Others', 'Notcb_Religion', 'Others_Religion']
-    
     df_votes = pd.DataFrame()
     for itp, trt_pair in enumerate(comb_trt):
         df_trt = pd.read_csv(''.join([ensemble_path, trt_pair, '-one-v-one.csv'   ])).dropna()
